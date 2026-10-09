@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MimicGYM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=20261009164045">
+</head>
+<body>
+
+  <!-- 1. Set up the workout -->
+  <section id="setup" class="screen active">
+    <header class="brand">
+      <h1>Mimic<span>GYM</span></h1>
+      <p>Move. The world moves with you.</p>
+    </header>
+
+    <div class="setup-grid">
+      <div class="panel setup-panel">
+        <div id="day-block">
+          <h3>Which day?</h3>
+          <div class="days" id="days" role="radiogroup" aria-label="Day"></div>
+        </div>
+
+        <h3>How long?</h3>
+        <div class="seg" id="durations" role="radiogroup" aria-label="Workout length"></div>
+
+        <h3>How are you playing?</h3>
+        <div class="modes" role="radiogroup" aria-label="Play mode">
+          <button class="mode" data-mode="camera" role="radio">
+            <b>With camera</b>
+            <span>The world reacts to your real moves.</span>
+          </button>
+          <button class="mode" data-mode="tv" role="radio">
+            <b>No camera / TV</b>
+            <span>Follow the coach. The world moves to the coach's beat.</span>
+          </button>
+        </div>
+        <p id="cam-note" class="note" hidden></p>
+
+        <p id="plan-summary" class="summary"></p>
+        <button id="start-btn" class="btn primary big">Start workout</button>
+      </div>
+
+      <div>
+        <h3 class="lineup-title">Today's lineup</h3>
+        <div class="lineup" id="lineup"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Camera: get in position -->
+  <section id="position" class="screen">
+    <div class="position-layout">
+      <div class="position-stage">
+        <canvas id="pos-canvas"></canvas>
+        <div id="pos-count" class="pos-count"></div>
+      </div>
+      <div class="position-info">
+        <p class="eyebrow">Get in position</p>
+        <h2>Step back until you fit head to toe</h2>
+        <ul class="checks">
+          <li id="chk-cam">Camera on</li>
+          <li id="chk-body">Whole body in view</li>
+        </ul>
+        <p id="pos-status" class="status">Asking for camera access…</p>
+        <div class="actions">
+          <button id="pos-back" class="btn ghost">Back</button>
+          <button id="pos-tv" class="btn ghost">Play without camera</button>
+          <button id="pos-start" class="btn primary">Start now</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. The workout -->
+  <section id="workout" class="screen">
+    <canvas id="scene"></canvas>
+    <div id="wipe" class="wipe"></div>
+
+    <aside class="coach-panel" id="coach-panel">
+      <p class="coach-world" id="coach-world"></p>
+      <h2 class="coach-move" id="coach-move"></h2>
+      <canvas id="coach-canvas"></canvas>
+      <p class="coach-cue" id="coach-cue"></p>
+      <div class="block-bar"><div id="block-fill"></div></div>
+      <p class="block-left" id="block-left"></p>
+    </aside>
+
+    <header class="topbar" id="topbar">
+      <div class="plan-bar" id="plan-bar" aria-hidden="true"><div class="plan-head" id="plan-head"></div></div>
+      <div class="top-right">
+        <div class="stat"><b id="time-left">0:00</b><span>left</span></div>
+        <div class="stat"><b id="rep-count">0</b><span id="rep-label">reps</span></div>
+        <button id="music-btn" class="btn ghost small">Music on</button>
+        <button id="mute-btn" class="btn ghost small">Sound on</button>
+        <button id="pause-btn" class="btn ghost small">Pause</button>
+      </div>
+    </header>
+
+    <div id="scene-hud" class="scene-hud"></div>
+    <div id="next-banner" class="next-banner" hidden>
+      <canvas id="next-canvas"></canvas>
+      <div><small>Next up</small><b id="next-name"></b></div>
+      <span id="next-count" class="next-count"></span>
+    </div>
+    <div id="center-msg" class="center-msg"></div>
+
+    <div class="cam-card" id="cam-card" hidden>
+      <canvas id="cam-canvas"></canvas>
+      <div id="cam-hint" class="cam-hint" hidden></div>
+      <div id="cam-debug" class="cam-debug"></div>
+    </div>
+
+    <div id="pause" class="overlay" hidden>
+      <div class="overlay-card">
+        <h2>Paused</h2>
+        <p>Catch your breath. The goose will wait.</p>
+        <div class="actions">
+          <button id="resume-btn" class="btn primary">Resume</button>
+          <button id="finish-btn" class="btn ghost">End workout</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Results -->
+  <section id="done" class="screen">
+    <div class="done-card">
+      <p class="eyebrow">Workout complete</p>
+      <h2 id="done-title"></h2>
+      <div class="stats">
+        <div><b id="stat-time">0:00</b><span>Time</span></div>
+        <div><b id="stat-reps">0</b><span id="stat-reps-label">Moves</span></div>
+        <div><b id="stat-kcal">0</b><span>kcal (est.)</span></div>
+      </div>
+      <ul class="breakdown" id="breakdown"></ul>
+      <div class="actions">
+        <button id="menu-btn" class="btn ghost">Change workout</button>
+        <button id="again-btn" class="btn primary">Go again</button>
+      </div>
+    </div>
+  </section>
+
+  <video id="cam" playsinline muted></video>
+  <!-- Versioned module URLs so browsers never mix old cached files with new ones. -->
+  <script type="importmap">
+  {
+    "imports": {
+      "./js/app.js": "./js/app.js?v=20261009164045",
+      "./js/audio.js": "./js/audio.js?v=20261009164045",
+      "./js/figure.js": "./js/figure.js?v=20261009164045",
+      "./js/fx.js": "./js/fx.js?v=20261009164045",
+      "./js/moves/bamboo.js": "./js/moves/bamboo.js?v=20261009164045",
+      "./js/moves/body.js": "./js/moves/body.js?v=20261009164045",
+      "./js/moves/breathe.js": "./js/moves/breathe.js?v=20261009164045",
+      "./js/moves/bridge.js": "./js/moves/bridge.js?v=20261009164045",
+      "./js/moves/burpee.js": "./js/moves/burpee.js?v=20261009164045",
+      "./js/moves/circles.js": "./js/moves/circles.js?v=20261009164045",
+      "./js/moves/climber.js": "./js/moves/climber.js?v=20261009164045",
+      "./js/moves/core.js": "./js/moves/core.js?v=20261009164045",
+      "./js/moves/curl.js": "./js/moves/curl.js?v=20261009164045",
+      "./js/moves/curtsy.js": "./js/moves/curtsy.js?v=20261009164045",
+      "./js/moves/jacks.js": "./js/moves/jacks.js?v=20261009164045",
+      "./js/moves/jog.js": "./js/moves/jog.js?v=20261009164045",
+      "./js/moves/lateral.js": "./js/moves/lateral.js?v=20261009164045",
+      "./js/moves/plank.js": "./js/moves/plank.js?v=20261009164045",
+      "./js/moves/press.js": "./js/moves/press.js?v=20261009164045",
+      "./js/moves/punch.js": "./js/moves/punch.js?v=20261009164045",
+      "./js/moves/pushup.js": "./js/moves/pushup.js?v=20261009164045",
+      "./js/moves/rdl.js": "./js/moves/rdl.js?v=20261009164045",
+      "./js/moves/row.js": "./js/moves/row.js?v=20261009164045",
+      "./js/moves/runner.js": "./js/moves/runner.js?v=20261009164045",
+      "./js/moves/slap.js": "./js/moves/slap.js?v=20261009164045",
+      "./js/moves/squat.js": "./js/moves/squat.js?v=20261009164045",
+      "./js/moves/stretch.js": "./js/moves/stretch.js?v=20261009164045",
+      "./js/moves/tricep.js": "./js/moves/tricep.js?v=20261009164045",
+      "./js/moves/twist.js": "./js/moves/twist.js?v=20261009164045",
+      "./js/music.js": "./js/music.js?v=20261009164045",
+      "./js/plan.js": "./js/plan.js?v=20261009164045",
+      "./js/scene.js": "./js/scene.js?v=20261009164045",
+      "./js/tracker.js": "./js/tracker.js?v=20261009164045",
+      "./js/util.js": "./js/util.js?v=20261009164045"
+    }
+  }
+  </script>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
